@@ -8,31 +8,54 @@ const WHITE_IP_LIST = [
   "34.212.75.30",
   "54.218.53.128",
   "52.32.178.7",
+  "127.0.0.1",
 ];
 
 const EventQueue = Array();
 
+const BULLISH_MARKET = "BL";
+const BEARISH_MARKET = "BR";
+
+var CurrentTrend = BEARISH_MARKET;
+var Debounced = false;
+
 router.post('/buy', (req, res, next) => {
   if (!Prerequisite(req, res)) return ;
 
-  EventQueue.push({
-    action: 'buy',
-    lot: config.lot,
-    timestamp: Date.now(),
-    stopLoss: req.body.sl,
-  });
+  if (!Debounced) {
+    let action = 'buy';
+    if (config.enableTrendTrade) {
+      if (CurrentTrend == BEARISH_MARKET) action = 'close';
+    }
+  
+    EventQueue.push({
+      action: action,
+      lot: config.lot,
+      timestamp: Date.now(),
+      stopLoss: req.body.sl,
+    });  
+  }
+
   res.send('OK');
 });
 
 router.post('/sell', (req, res, next) => {
   if (!Prerequisite(req, res)) return ;
 
-  EventQueue.push({
-    action: 'sell',
-    lot: config.lot,
-    timestamp: Date.now(),
-    stopLoss: req.body.sl,
-  })
+  if (!Debounced) {
+    let action = 'sell';
+    if (config.enableTrendTrade) {
+      if (CurrentTrend == BULLISH_MARKET) action = 'close';
+    }
+  
+    EventQueue.push({
+      action: action,
+      lot: config.lot,
+      timestamp: Date.now(),
+      stopLoss: req.body.sl,
+    })  
+  }
+
   res.send('OK');
 });
 
@@ -45,6 +68,57 @@ router.post('/close', (req, res, next) => {
   })
   res.send('OK');
 });
+
+router.post('/debounce', (req, res, next) => {
+  if (!checkWhiteIps(req, res)) return ;
+
+  console.log('Enable de-bounce Filter !');
+  Debounced = true;
+  res.send('OK');
+});
+
+router.post('/obv-bl', (req, res, next) => {
+  if (!checkWhiteIps(req, res)) return ;
+
+  if (CurrentTrend == BEARISH_MARKET) {
+    console.log('Regular Bullish Div. in Bear Market !!!')
+    EventQueue.push({
+      action: 'close',
+      timestamp: Date.now(),
+    })  
+  }
+  res.send('OK');
+});
+
+router.post('/obv-br', (req, res, next) => {
+  if (!checkWhiteIps(req, res)) return ;
+
+  if (CurrentTrend == BULLISH_MARKET) {
+    console.log('Regular Bearish Div. in Bull Market !!!')
+    EventQueue.push({
+      action: 'close',
+      timestamp: Date.now(),
+    })
+  }
+  res.send('OK');
+});
+
+router.post('/trend-bl', (req, res, next) => {
+  if (!checkWhiteIps(req, res)) return ;
+
+  console.log('Revers Market Direction to Bull Market .')
+  CurrentTrend = BULLISH_MARKET;
+  res.send('OK');
+});
+
+router.post('/trend-br', (req, res, next) => {
+  if (!checkWhiteIps(req, res)) return ;
+
+  console.log('Revers Market Direction to Bear Market .')
+  CurrentTrend = BEARISH_MARKET;
+  res.send('OK');
+});
+
 
 const Prerequisite = (req, res) => {
   return checkWhiteIps(req, res) && checkStopLoss(req, res);
