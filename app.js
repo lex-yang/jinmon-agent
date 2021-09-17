@@ -17,6 +17,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 //app.use('/', indexRouter);
 app.use('/mt', mtRouter.router);
 app.use('/tv', tvRouter.router);
-app.use('/config', configRouter);
+app.use('/config', configRouter.router);
 
 module.exports = app;

@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const config = require('../config');
+const config = require('./config');
 
 const WHITE_IP_LIST = [
   "52.89.214.238",
@@ -22,7 +22,7 @@ var Debounced = false;
 router.post('/buy', (req, res, next) => {
   if (!Prerequisite(req, res)) return ;
 
-  if (!Debounced) {
+  if (!Debounced && !config.disabled) {
     let action = 'buy';
     if (config.enableTrendTrade) {
       if (CurrentTrend == BEARISH_MARKET) action = 'close';
@@ -42,7 +42,7 @@ router.post('/buy', (req, res, next) => {
 router.post('/sell', (req, res, next) => {
   if (!Prerequisite(req, res)) return ;
 
-  if (!Debounced) {
+  if (!Debounced && !config.disabled) {
     let action = 'sell';
     if (config.enableTrendTrade) {
       if (CurrentTrend == BULLISH_MARKET) action = 'close';
@@ -80,7 +80,9 @@ router.post('/debounce', (req, res, next) => {
 router.post('/obv-bl', (req, res, next) => {
   if (!checkWhiteIps(req, res)) return ;
 
-  if (CurrentTrend == BEARISH_MARKET) {
+  if (config.enableTrendTrade &&
+      CurrentTrend == BEARISH_MARKET) {
+
     console.log('Regular Bullish Div. in Bear Market !!!')
     EventQueue.push({
       action: 'close',
@@ -93,7 +95,9 @@ router.post('/obv-bl', (req, res, next) => {
 router.post('/obv-br', (req, res, next) => {
   if (!checkWhiteIps(req, res)) return ;
 
-  if (CurrentTrend == BULLISH_MARKET) {
+  if (config.enableTrendTrade &&
+      CurrentTrend == BULLISH_MARKET) {
+
     console.log('Regular Bearish Div. in Bull Market !!!')
     EventQueue.push({
       action: 'close',

@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const eventQueue = require('./tradingView').queue;
-const config = require('../config');
+const config = require('./config');
 
 router.post('/poll', (req, res, next) => {
   if (!checkPrivateNetwork(req, res)) return ;
