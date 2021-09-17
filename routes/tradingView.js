@@ -36,6 +36,7 @@ router.post('/buy', (req, res, next) => {
     });  
   }
 
+  Debounced = false;
   res.send('OK');
 });
 
@@ -56,6 +57,7 @@ router.post('/sell', (req, res, next) => {
     })  
   }
 
+  Debounced = false;
   res.send('OK');
 });
 

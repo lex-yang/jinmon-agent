@@ -10,6 +10,7 @@ var Config = {
 	whiteIps: true,
 	verbose: true,
 	disabled: false,
+  logger: false,
 }
 
 router.post('/disable', (req, res, next) => {
