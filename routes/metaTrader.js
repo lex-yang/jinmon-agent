@@ -4,10 +4,6 @@ var router = express.Router();
 const eventQueue = require('./tradingView').queue;
 const config = require('../config');
 
-const MT_ACTION_BUY = 'BY';
-const MT_ACTION_SELL = 'SE';
-const MT_ACTION_CLOSE = 'CL';
-
 router.post('/poll', (req, res, next) => {
   if (!checkPrivateNetwork(req, res)) return ;
 
@@ -18,6 +14,7 @@ router.post('/poll', (req, res, next) => {
   else {
     const jsonStr = JSON.stringify({
       a: event.action,
+      l: event.lot,
       sl: event.stopLoss,
     });
 

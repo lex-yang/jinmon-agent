@@ -17,6 +17,7 @@ router.post('/buy', (req, res, next) => {
 
   EventQueue.push({
     action: 'buy',
+    lot: config.lot,
     timestamp: Date.now(),
     stopLoss: req.body.sl,
   });
@@ -28,6 +29,7 @@ router.post('/sell', (req, res, next) => {
 
   EventQueue.push({
     action: 'sell',
+    lot: config.lot,
     timestamp: Date.now(),
     stopLoss: req.body.sl,
   })
@@ -35,12 +37,11 @@ router.post('/sell', (req, res, next) => {
 });
 
 router.post('/close', (req, res, next) => {
-  if (!Prerequisite(req, res)) return ;
+  if (!checkWhiteIps(req, res)) return ;
 
   EventQueue.push({
     action: 'close',
     timestamp: Date.now(),
-    stopLoss: 0,
   })
   res.send('OK');
 });
