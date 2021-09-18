@@ -5,9 +5,11 @@ const eventQueue = require('./tradingView').queue;
 const config = require('./config');
 
 router.post('/poll', (req, res, next) => {
-  if (!checkPrivateNetwork(req, res)) return ;
+  const ipv4 = req.ip.split(':')[3];
 
-  const event = checkEventQueue();
+  if (!checkPrivateNetwork(req, res, ipv4)) return ;
+
+  const event = checkEventQueue(ipv4);
 
   if (event == null)
     res.send('NA');
@@ -23,27 +25,36 @@ router.post('/poll', (req, res, next) => {
   }
 });
 
-const checkPrivateNetwork = (req) => {
-  const ipv4 = req.ip.split(':')[3];
+const checkPrivateNetwork = (req, res, ip) => {
 
-  if (ipv4 == '127.0.0.1' || ipv4.substr(0, 7) == '192.168') {
+  if (ip == '127.0.0.1' || ip.substr(0, 7) == '192.168') {
     return true;
   }
   else {
-    res.send(`Access denied !!! IP: ${ipv4} MUST Be private network !!!`);
+    res.send(`Access denied !!! IP: ${ip} MUST Be private network !!!`);
     return false;
   }
 }
 
-const checkEventQueue = () => {
-  let event = eventQueue.shift();
+const checkEventQueue = (ip) => {
+  //let event = eventQueue.shift();
 
-  while (event != undefined) {
-    if (( Date.now() - event.timestamp ) < 8000) {
-      console.log(event);
+  const now = Date.now();
+
+  while (eventQueue.length > 0) {
+    let event = eventQueue[0];
+    if (( now - event.timestamp ) < 8000) {
+      if (event[ip] == undefined) {
+        event[ip] = true;
+        console.log(event);
+      }
+      else {
+        event = null;
+      }
+
       return event;
     }
-    event = eventQueue.shift();
+    eventQueue.shift();
   }
 
   return null;
