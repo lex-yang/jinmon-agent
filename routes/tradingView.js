@@ -24,10 +24,7 @@ router.post('/buy', (req, res, next) => {
 
   if (!Debounced && !config.disabled) {
     let action = 'buy';
-    if (config.enableTrendTrade) {
-      if (CurrentTrend == BEARISH_MARKET) action = 'close';
-    }
-  
+
     EventQueue.push({
       action: action,
       lot: config.lot,
@@ -45,10 +42,7 @@ router.post('/sell', (req, res, next) => {
 
   if (!Debounced && !config.disabled) {
     let action = 'sell';
-    if (config.enableTrendTrade) {
-      if (CurrentTrend == BULLISH_MARKET) action = 'close';
-    }
-  
+
     EventQueue.push({
       action: action,
       lot: config.lot,
