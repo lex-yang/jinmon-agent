@@ -6,7 +6,6 @@ var Config = {
 	router: router,
 	lot: 0.1,
 	requireStopLoss: true,
-	enableTrendTrade: false,
 	whiteIps: true,
 	verbose: true,
 	disabled: false,
@@ -28,23 +27,6 @@ router.post('/enable', (req, res, next) => {
   Config.disabled = false;
   res.send('OK');
 });
-
-router.post('/disable-tt', (req, res, next) => {
-  if (!checkPrivateNetwork(req, res)) return ;
-
-  console.log('Disable Trend Trade !')
-  Config.enableTrendTrade = false;
-  res.send('OK');
-});
-
-router.post('/enable-tt', (req, res, next) => {
-  if (!checkPrivateNetwork(req, res)) return ;
-
-  console.log('Enable Trend Trade !')
-  Config.enableTrendTrade = true;
-  res.send('OK');
-});
-
 
 const checkPrivateNetwork = (req) => {
   const ipv4 = req.ip.split(':')[3];

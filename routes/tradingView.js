@@ -76,31 +76,15 @@ router.post('/debounce', (req, res, next) => {
 router.post('/obv-bl', (req, res, next) => {
   if (!checkWhiteIps(req, res)) return ;
 
-  if (config.enableTrendTrade &&
-      CurrentTrend == BEARISH_MARKET) {
-
-    console.log('Regular Bullish Div. in Bear Market !!!')
-    EventQueue.push({
-      action: 'close',
-      timestamp: Date.now(),
-    })  
-  }
-  res.send('OK');
+  console.log('Regular Bullish Div. Not Implemented yet!')
+  res.send('Not Implemented !');
 });
 
 router.post('/obv-br', (req, res, next) => {
   if (!checkWhiteIps(req, res)) return ;
 
-  if (config.enableTrendTrade &&
-      CurrentTrend == BULLISH_MARKET) {
-
-    console.log('Regular Bearish Div. in Bull Market !!!')
-    EventQueue.push({
-      action: 'close',
-      timestamp: Date.now(),
-    })
-  }
-  res.send('OK');
+  console.log('Regular Bearish Div. Not Implemented yet !')
+  res.send('Not Implemented !');
 });
 
 router.post('/trend-bl', (req, res, next) => {
