@@ -24,13 +24,15 @@ router.post('/buy', (req, res, next) => {
 
   if (!Debounced && !config.disabled) {
     let action = 'buy';
-
-    EventQueue.push({
+    let msg = {
       action: action,
       lot: config.lot,
       timestamp: Date.now(),
       stopLoss: req.body.sl,
-    });  
+    };
+
+    if (req.body.addition) msg.addition = true;
+    EventQueue.push(msg);  
   }
 
   Debounced = false;
@@ -42,13 +44,15 @@ router.post('/sell', (req, res, next) => {
 
   if (!Debounced && !config.disabled) {
     let action = 'sell';
-
-    EventQueue.push({
+    let msg = {
       action: action,
       lot: config.lot,
       timestamp: Date.now(),
       stopLoss: req.body.sl,
-    })  
+    };
+
+    if (req.body.addition) msg.addition = true;
+    EventQueue.push(msg);
   }
 
   Debounced = false;

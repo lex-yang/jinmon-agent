@@ -4,6 +4,21 @@ var router = express.Router();
 const eventQueue = require('./tradingView').queue;
 const config = require('./config');
 
+router.post('tick', (req, res, next) => {
+  const ipv4 = req.ip.split(':')[3];
+
+  if (!checkPrivateNetwork(req, res, ipv4)) return ;
+
+  /**
+   *  open:
+   *  close:
+   *  high:
+   *  low:
+   */
+
+});
+
+
 router.post('/poll', (req, res, next) => {
   const ipv4 = req.ip.split(':')[3];
 
@@ -18,6 +33,7 @@ router.post('/poll', (req, res, next) => {
       a: event.action,
       l: event.lot,
       sl: event.stopLoss,
+      add: event.addition,
     });
 
     console.log(jsonStr);
@@ -55,6 +71,7 @@ const checkEventQueue = (ip) => {
       return event;
     }
     eventQueue.shift();
+    console.log("----------");
   }
 
   return null;
