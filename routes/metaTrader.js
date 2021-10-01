@@ -4,6 +4,16 @@ var router = express.Router();
 const eventQueue = require('./tradingView').queue;
 const config = require('./config');
 
+/* Redis operation functions */
+const redis = require('redis');
+const redisClient = redis.createClient();
+
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
+redisClient.on('connect', () => console.log('Redis Client connected !'));
+
+redisClient.connect();
+
+
 router.post('tick', (req, res, next) => {
   const ipv4 = req.ip.split(':')[3];
 
@@ -16,6 +26,63 @@ router.post('tick', (req, res, next) => {
    *  low:
    */
 
+});
+
+
+var CodeTable = {};
+
+router.post('/create-list', (req, res, next) => {
+  const ipv4 = req.ip.split(':')[3];
+  if (!checkPrivateNetwork(req, res, ipv4)) return ;
+
+  // Real Work.
+  const listName = req.body.name;
+
+  redisClient.EXISTS(listName).then(existed => {
+    let token = 0;
+
+    if (existed) {
+      res.send('NA');
+      return ;
+    }
+
+    token = Math.floor(Math.random() * 1000000).toString();
+    CodeTable[token] = listName;
+    res.send(JSON.stringify({
+      r: token,
+    }));
+  });
+});
+
+router.post('/close-list', (req, res, next) => {
+  const ipv4 = req.ip.split(':')[3];
+  if (!checkPrivateNetwork(req, res, ipv4)) return ;
+
+  // Real Work!
+  const token = req.body.token;
+
+  delete CodeTable[token];
+  res.send('OK');
+});
+
+router.post('/rpush', (req, res, next) => {
+  const ipv4 = req.ip.split(':')[3];
+  if (!checkPrivateNetwork(req, res, ipv4)) return ;
+
+  // Real Work.
+  const token = req.body.token;
+  if (!(token in CodeTable)) {
+    res.send('NA');
+    return ;
+  }
+  
+  const listName = CodeTable[token];
+  const item = req.body.item;
+  redisClient.RPUSH(listName, JSON.stringify(item)).then(count => {
+    res.send(JSON.stringify({
+      r: count
+    }));
+  });
 });
 
 
